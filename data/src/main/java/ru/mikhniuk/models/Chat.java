@@ -20,6 +20,13 @@ public class Chat {
         this.participants = participants;
     }
 
+    public Chat(Chat chat) {
+        this.name = chat.name;
+        this.participants = chat.participants;
+        this.messages = chat.messages;
+        this.admin = chat.admin;
+    }
+
     public User getAdmin() {
         return admin;
     }

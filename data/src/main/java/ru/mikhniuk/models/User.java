@@ -9,6 +9,10 @@ public class User {
         this.nick = nick;
     }
 
+    public User(User user) {
+        this.nick = user.nick;
+    }
+
     public String getNick() {
         return nick;
     }
