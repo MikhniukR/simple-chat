@@ -5,15 +5,18 @@ import java.util.Objects;
 
 public class Chat {
     private final User admin;
+    private final String name;
     private List<User> participants;
     private List<Message> messages;
 
-    public Chat(User admin) {
+    public Chat(User admin, String name) {
         this.admin = admin;
+        this.name = name;
     }
 
-    public Chat(User admin, List<User> participants) {
+    public Chat(User admin, String name, List<User> participants) {
         this.admin = admin;
+        this.name = name;
         this.participants = participants;
     }
 
