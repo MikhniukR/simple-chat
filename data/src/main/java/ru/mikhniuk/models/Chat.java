@@ -32,6 +32,10 @@ public class Chat {
         return messages;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void addMessage(Message message) {
         messages.add(message);
     }

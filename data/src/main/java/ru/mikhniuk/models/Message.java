@@ -1,13 +1,11 @@
 package ru.mikhniuk.models;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Objects;
 
 public class Message {
     private final User author;
-    private String text;
+    private final String text;
     private final Instant time;
 
     public Message(User author, String text, Instant time) {
@@ -20,10 +18,6 @@ public class Message {
         this.author = author;
         this.text = text;
         this.time = Instant.now();
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 
     public User getAuthor() {
