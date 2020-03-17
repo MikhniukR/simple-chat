@@ -7,9 +7,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The type User client in memory.
+ */
 public class UserClientInMemory implements UserClient {
     private List<User> users;
 
+    /**
+     * Instantiates a new User client in memory.
+     */
     public UserClientInMemory() {
         this.users = new LinkedList<>();
     }
@@ -21,9 +27,9 @@ public class UserClientInMemory implements UserClient {
 
     @Override
     public User createUser(String nick) throws IllegalArgumentException {
-        if(users.stream().anyMatch(
+        if (users.stream().anyMatch(
                 user -> user.getNick().equals(nick))) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("User with nick " + nick + " already exist, nick should be uniq.");
         }
 
         User user = new User(nick);
@@ -34,9 +40,9 @@ public class UserClientInMemory implements UserClient {
 
     @Override
     public boolean deleteUser(String nick) throws NoSuchElementException {
-        if(users.stream().noneMatch(
+        if (users.stream().noneMatch(
                 user -> user.getNick().equals(nick))) {
-            throw new NoSuchElementException();
+            throw new NoSuchElementException("No user with nick " + nick);
         }
         return users.removeIf(
                 user -> user.getNick().equals(nick)

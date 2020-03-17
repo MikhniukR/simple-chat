@@ -3,31 +3,62 @@ package ru.mikhniuk.models;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * The type Message.
+ */
 public class Message {
-    private final String authorNick;
+    private final User author;
     private final String text;
     private final Instant time;
 
-    public Message(String authorNick, String text, Instant time) {
-        this.authorNick = authorNick;
+    /**
+     * Instantiates a new Message.
+     *
+     * @param author the author
+     * @param text   the text
+     * @param time   the time
+     */
+    public Message(User author, String text, Instant time) {
+        this.author = author;
         this.text = text;
         this.time = time;
     }
 
-    public Message(String authorNick, String text) {
-        this.authorNick = authorNick;
+    /**
+     * Instantiates a new Message.
+     *
+     * @param author the author nick
+     * @param text   the text
+     */
+    public Message(User author, String text) {
+        this.author = author;
         this.text = text;
         this.time = Instant.now();
     }
 
-    public String getAuthor() {
-        return authorNick;
+    /**
+     * Gets author.
+     *
+     * @return the author
+     */
+    public User getAuthor() {
+        return author;
     }
 
+    /**
+     * Gets text.
+     *
+     * @return the text
+     */
     public String getText() {
         return text;
     }
 
+    /**
+     * Gets time.
+     *
+     * @return the time
+     */
     public Instant getTime() {
         return time;
     }
@@ -50,7 +81,7 @@ public class Message {
     @Override
     public String toString() {
         return "Message{" +
-                "authorNick=" + authorNick +
+                "authorNick=" + author +
                 ", text='" + text + '\'' +
                 ", time=" + time +
                 '}';

@@ -26,8 +26,8 @@ public class ChatClientInMemoryTest {
 
         List<Chat> chats = client.getAllChats();
         Assert.assertEquals(2, chats.size());
-        Assert.assertTrue(chats.contains(new Chat(admin1,"test", List.of(participant1, admin1))));
-        Assert.assertTrue(chats.contains(new Chat(admin2,"otherChat", List.of(participant1, participant2, admin2))));
+        Assert.assertTrue(chats.contains(new Chat(admin1, "test", List.of(participant1, admin1))));
+        Assert.assertTrue(chats.contains(new Chat(admin2, "otherChat", List.of(participant1, participant2, admin2))));
     }
 
     @Test
@@ -52,18 +52,18 @@ public class ChatClientInMemoryTest {
         User participant = new User("participant");
 
         client.createChat(admin, "test", List.of(participant, admin));
-        client.addMessage("test", admin.getNick(), "some message");
-        client.addMessage("test", participant.getNick(), "some other message");
+        client.addMessage("test", admin, "some message");
+        client.addMessage("test", participant, "some other message");
 
         Chat chat = client.getAllChats().get(0);
         Assert.assertEquals(2, chat.getMessages().size());
         Assert.assertTrue(chat.getMessages().stream().anyMatch(
                 message -> message.getText().equals("some message") &&
-                        message.getAuthor().equals(admin.getNick())
+                        message.getAuthor().equals(admin)
         ));
         Assert.assertTrue(chat.getMessages().stream().anyMatch(
                 message -> message.getText().equals("some other message") &&
-                        message.getAuthor().equals(participant.getNick())
+                        message.getAuthor().equals(participant)
         ));
     }
 
@@ -79,7 +79,7 @@ public class ChatClientInMemoryTest {
         Assert.assertEquals(client.getAllChats().size(), 1);
 
         Chat chat = client.getAllChats().get(0);
-        chat.addMessage(new Message(admin.getNick(), "try add message"));
+        chat.addMessage(new Message(admin, "try add message"));
         Assert.assertEquals(0, client.getAllChats().get(0).getMessages().size());
     }
 
@@ -92,7 +92,7 @@ public class ChatClientInMemoryTest {
         client.createChat(admin, "test", List.of(participant, admin));
 
         Chat chat = client.getAllChats().get(0);
-        chat.addMessage(new Message(admin.getNick(), "try add message"));
+        chat.addMessage(new Message(admin, "try add message"));
         Assert.assertEquals(0, client.getAllChats().get(0).getMessages().size());
     }
 

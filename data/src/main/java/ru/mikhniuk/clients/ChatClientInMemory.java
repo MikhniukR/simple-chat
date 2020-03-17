@@ -8,9 +8,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The type Chat client in memory.
+ */
 public class ChatClientInMemory implements ChatClient {
     private List<Chat> chats;
 
+    /**
+     * Instantiates a new Chat client in memory.
+     */
     public ChatClientInMemory() {
         this.chats = new LinkedList<>();
     }
@@ -24,13 +30,12 @@ public class ChatClientInMemory implements ChatClient {
 
     @Override
     public Chat createChat(User admin, String name, List<User> participants) throws IllegalArgumentException {
-        if(chats.stream().anyMatch(
+        if (chats.stream().anyMatch(
                 chat -> chat.getName().equals(name))) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Chat with name " + name + " already exists, chat name should be uniq");
         }
-
-        if(!participants.contains(admin)) {
-            throw new IllegalArgumentException();
+        if (!participants.contains(admin)) {
+            throw new IllegalArgumentException("Admin should be in participants.");
         }
 
         Chat chat = new Chat(admin, name, participants);
@@ -40,9 +45,9 @@ public class ChatClientInMemory implements ChatClient {
 
     @Override
     public boolean removeChat(String name) throws NoSuchElementException {
-        if(chats.stream().noneMatch(
+        if (chats.stream().noneMatch(
                 chat -> chat.getName().equals(name))) {
-            throw new NoSuchElementException();
+            throw new NoSuchElementException("There isn't chat with name " + name);
         }
 
         return chats.removeIf(
@@ -51,24 +56,24 @@ public class ChatClientInMemory implements ChatClient {
     }
 
     @Override
-    public void addMessage(String chatName, String authorNick, String text)
+    public void addMessage(String chatName, User author, String text)
             throws NoSuchElementException, IllegalArgumentException {
-        if(chats.stream().noneMatch(
+        if (chats.stream().noneMatch(
                 chat -> chat.getName().equals(chatName))) {
             throw new NoSuchElementException();
         }
-        if(chats.stream().filter(
+        if (chats.stream().filter(
                 chat -> chat.getName().equals(chatName))
                 .findFirst().get().getParticipants().stream().noneMatch(
-                        user -> user.getNick().equals(authorNick))) {
+                        user -> user.getNick().equals(author.getNick()))) {
             throw new IllegalArgumentException();
         }
 
-        Message message = new Message(authorNick, text);
+        Message message = new Message(author, text);
         chats.stream().filter(
                 chat -> chat.getName().equals(chatName)
         ).forEach(
-                chat -> chat.addMessage(new Message(authorNick, text))
+                chat -> chat.addMessage(new Message(author, text))
         );
     }
 }
