@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  * The type Chat client in memory.
  */
 public class ChatClientInMemory implements ChatClient {
-    private List<Chat> chats;
+    private final List<Chat> chats;
 
     /**
      * Instantiates a new Chat client in memory.
@@ -46,12 +46,12 @@ public class ChatClientInMemory implements ChatClient {
     }
 
     @Override
-    public boolean deleteChat(String chatName) throws NoSuchElementException {
+    public void deleteChat(String chatName) throws NoSuchElementException {
         if (!contains(chatName)) {
             throw new NoSuchElementException("There isn't chat with name " + chatName);
         }
 
-        return chats.removeIf(
+        chats.removeIf(
                 chat -> chat.getName().equals(chatName)
         );
     }
@@ -62,18 +62,19 @@ public class ChatClientInMemory implements ChatClient {
         if (!contains(chatName)) {
             throw new NoSuchElementException("There isn't chat with name " + chatName);
         }
-        if (chats.stream().filter(
-                chat -> chat.getName().equals(chatName))
-                .findFirst().get().getParticipants().stream().noneMatch(
-                        user -> user.getNick().equals(author.getNick()))) {
-            throw new IllegalArgumentException();
+        //No isPresent because it checked with contains
+        Chat chat = chats.stream().filter(c -> c.getName().equals(chatName))
+                .findFirst().get();
+        if (chat.getParticipants().stream().noneMatch(
+                user -> user.getNick().equals(author.getNick()))) {
+            throw new IllegalArgumentException("User " + author.getNick() + " has no access to this chat");
         }
 
         Message message = new Message(author, text);
         chats.stream().filter(
-                chat -> chat.getName().equals(chatName)
+                c -> c.getName().equals(chatName)
         ).forEach(
-                chat -> chat.addMessage(new Message(author, text))
+                c -> c.addMessage(new Message(author, text))
         );
 
         return message;
