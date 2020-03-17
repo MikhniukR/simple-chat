@@ -1,4 +1,4 @@
-package ru.mikhniuk.models;
+package ru.simple.chat.models;
 
 import java.time.Instant;
 import java.util.Objects;
