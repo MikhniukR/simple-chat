@@ -1,5 +1,6 @@
 package ru.mikhniuk.models;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,12 +19,13 @@ public class Chat {
         this.admin = admin;
         this.name = name;
         this.participants = participants;
+        this.messages = new LinkedList<>();
     }
 
     public Chat(Chat chat) {
         this.name = chat.name;
-        this.participants = chat.participants;
-        this.messages = chat.messages;
+        this.participants = new LinkedList<>(chat.participants);
+        this.messages = new LinkedList<>(chat.messages);
         this.admin = chat.admin;
     }
 

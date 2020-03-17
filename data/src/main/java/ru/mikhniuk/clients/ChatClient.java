@@ -8,7 +8,9 @@ import java.util.NoSuchElementException;
 
 public interface ChatClient {
     List<Chat> getAllChats();
-    Chat createChat(User admin, String name, List<User> participants) throws IllegalArgumentException;
+    Chat createChat(User admin, String name, List<User> participants)
+            throws IllegalArgumentException;
     boolean removeChat(String name) throws NoSuchElementException;
-    void addMessage(String chatName, User author, String text) throws NoSuchElementException;
+    void addMessage(String chatName, String authorNick, String text)
+            throws NoSuchElementException, IllegalArgumentException;
 }

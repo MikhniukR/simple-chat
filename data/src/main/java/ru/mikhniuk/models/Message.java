@@ -4,24 +4,24 @@ import java.time.Instant;
 import java.util.Objects;
 
 public class Message {
-    private final User author;
+    private final String authorNick;
     private final String text;
     private final Instant time;
 
-    public Message(User author, String text, Instant time) {
-        this.author = author;
+    public Message(String authorNick, String text, Instant time) {
+        this.authorNick = authorNick;
         this.text = text;
         this.time = time;
     }
 
-    public Message(User author, String text) {
-        this.author = author;
+    public Message(String authorNick, String text) {
+        this.authorNick = authorNick;
         this.text = text;
         this.time = Instant.now();
     }
 
-    public User getAuthor() {
-        return author;
+    public String getAuthor() {
+        return authorNick;
     }
 
     public String getText() {
@@ -50,7 +50,7 @@ public class Message {
     @Override
     public String toString() {
         return "Message{" +
-                "author=" + author +
+                "authorNick=" + authorNick +
                 ", text='" + text + '\'' +
                 ", time=" + time +
                 '}';
