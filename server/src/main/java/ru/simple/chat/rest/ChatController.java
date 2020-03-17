@@ -54,43 +54,46 @@ public class ChatController {
      * Create chat chat.
      *
      * @param admin        the admin
-     * @param name         the name
+     * @param chatName     the name
      * @param participants the participants
      * @return the chat
      */
     @PostMapping("/chat")
     public ResponseEntity<Chat> createChat(@RequestParam(value = "admin") User admin,
-                                           @RequestParam(value = "name") String name,
+                                           @RequestParam(value = "name") String chatName,
                                            @RequestParam(value = "participants") List<User> participants) {
+
+        //TODO think about the faster variant this or userClient.contains() for every participant
+
         List<User> users = userClient.getAllUsers();
         Optional<User> badUser = participants.stream().filter(user -> !users.contains(user)).findFirst();
         if (badUser.isPresent()) {
             return new ResponseEntity("User with nick " + badUser.get().getNick() + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
-        try {
-            return new ResponseEntity(chatClient.createChat(admin, name, participants), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+
+        if (chatClient.contains(chatName)) {
+            return new ResponseEntity("Chat with name " + chatName + " already exists",
+                    HttpStatus.BAD_REQUEST);
         }
+
+        return new ResponseEntity(chatClient.createChat(admin, chatName, participants), HttpStatus.OK);
     }
 
     /**
      * Delete chat boolean.
      *
-     * @param name   the name
-     * @param author the author
+     * @param chatName the name
+     * @param author   the author
      * @return the boolean
      */
     @DeleteMapping("/chat/{name}")
-    public ResponseEntity deleteChat(@PathVariable("name") String name,
+    public ResponseEntity deleteChat(@PathVariable("name") String chatName,
                                      @RequestParam(value = "user") User author) {
-        try {
-            chatClient.removeChat(name);
-            return new ResponseEntity(HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        if (!chatClient.contains(chatName))
+
+            chatClient.deleteChat(chatName);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     /**
@@ -105,16 +108,74 @@ public class ChatController {
     public ResponseEntity<Message> addMessage(@PathVariable("chatName") String chatName,
                                               @RequestParam(value = "author") User author,
                                               @RequestParam(value = "text") String text) {
-        if (!userClient.getAllUsers().contains(author)) {
+        if (!userClient.contains(author.getNick())) {
             return new ResponseEntity("User with nick " + author.getNick() + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
+
+        if (!chatClient.contains(chatName)) {
+            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+        }
+
         try {
             return new ResponseEntity<>(chatClient.addMessage(chatName, author, text), HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * Gets chat by name
+     *
+     * @param chatName
+     * @return the chat
+     */
+    @GetMapping("/chat/{chatName}")
+    public ResponseEntity<Chat> getChat(@PathVariable("chatName") String chatName,
+                                        @RequestParam(value = "author") User author) {
+        if (!chatClient.contains(chatName)) {
+            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+        }
+
+        if (!userClient.contains(author.getNick())) {
+            return new ResponseEntity("User with nick " + author.getNick() + " not exists",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        Chat chat = chatClient.getChatByName(chatName);
+
+        if (!chat.getParticipants().contains(author)) {
+            return new ResponseEntity("You are not participant of chat " + chatName, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(chat, HttpStatus.OK);
+    }
+
+    /**
+     * Gets messages by chatName.
+     *
+     * @param chatName the chat name
+     * @param author   the author
+     * @return the messages
+     */
+    @GetMapping("/chat/{chatName}/messages")
+    public ResponseEntity<Message> getMessages(@PathVariable("chatName") String chatName,
+                                               @RequestParam(value = "author") User author) {
+        if (!chatClient.contains(chatName)) {
+            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+        }
+
+        if (!userClient.contains(author.getNick())) {
+            return new ResponseEntity("User with nick " + author.getNick() + " not exists",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        Chat chat = chatClient.getChatByName(chatName);
+
+        if (!chat.getParticipants().contains(author)) {
+            return new ResponseEntity("You are not participant of chat " + chatName, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(chat.getMessages(), HttpStatus.OK);
     }
 }

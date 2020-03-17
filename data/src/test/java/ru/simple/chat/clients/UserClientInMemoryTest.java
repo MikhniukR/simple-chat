@@ -36,4 +36,22 @@ public class UserClientInMemoryTest {
         client.getAllUsers().add(new User("fail"));
         assertEquals(1, client.getAllUsers().size());
     }
+
+    @Test
+    public void testGetByNick() {
+        UserClient client = new UserClientInMemory();
+        client.createUser("test");
+        client.createUser("other");
+
+        Assert.assertEquals(client.getByNick("test"), new User("test"));
+    }
+
+    @Test
+    public void testContains() {
+        UserClient client = new UserClientInMemory();
+        client.createUser("test");
+        client.createUser("other");
+
+        Assert.assertTrue(client.contains("test"));
+    }
 }
