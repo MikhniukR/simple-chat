@@ -38,7 +38,7 @@ public class ChatClientInMemoryTest {
         client.createChat(admin, "test", List.of(participant, admin));
         Assert.assertEquals(1, client.getAllChats().size());
 
-        client.removeChat("test");
+        client.deleteChat("test");
         Assert.assertTrue(client.getAllChats().isEmpty());
     }
 
@@ -105,5 +105,25 @@ public class ChatClientInMemoryTest {
         Chat chat = client.getAllChats().get(0);
         chat.getParticipants().add(participant);
         Assert.assertEquals(1, client.getAllChats().get(0).getParticipants().size());
+    }
+
+    @Test
+    public void testGetByName() {
+        ChatClient client = new ChatClientInMemory();
+        User admin = new User("admin");
+        User participant = new User("participant");
+
+        Chat chat = client.createChat(admin, "test", List.of(participant, admin));
+        Assert.assertEquals(chat, client.getChatByName(chat.getName()));
+    }
+
+    @Test
+    public void testContains() {
+        ChatClient client = new ChatClientInMemory();
+        User admin = new User("admin");
+        User participant = new User("participant");
+
+        Chat chat = client.createChat(admin, "test", List.of(participant, admin));
+        Assert.assertTrue(client.contains(chat.getName()));
     }
 }

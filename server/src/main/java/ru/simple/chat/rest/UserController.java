@@ -51,11 +51,11 @@ public class UserController {
      */
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestParam(value = "nick") String nick) {
-        try {
-            return new ResponseEntity<>(userClient.createUser(nick), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        if (userClient.contains(nick)) {
+            return new ResponseEntity("User with nick " + nick + " already exists",
+                    HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(userClient.createUser(nick), HttpStatus.OK);
     }
 
     /**
@@ -66,11 +66,28 @@ public class UserController {
      */
     @DeleteMapping("/user/{nick}")
     public ResponseEntity deleteUser(@PathVariable("nick") String nick) {
-        try {
-            userClient.deleteUser(nick);
-            return new ResponseEntity(HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        if (!userClient.contains(nick)) {
+            return new ResponseEntity("User with nick " + nick + " not exists",
+                    HttpStatus.BAD_REQUEST);
         }
+
+        userClient.deleteUser(nick);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Gets user by nick.
+     *
+     * @param nick the nick
+     * @return the user by nick
+     */
+    @GetMapping("/user/{nick}")
+    public ResponseEntity<User> getUserByNick(@PathVariable("nick") String nick) {
+        if (!userClient.contains(nick)) {
+            return new ResponseEntity("User with nick " + nick + " not exists",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(userClient.getByNick(nick), HttpStatus.OK);
     }
 }

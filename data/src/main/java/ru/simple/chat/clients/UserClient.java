@@ -33,4 +33,21 @@ public interface UserClient {
      * @throws NoSuchElementException the no such element exception
      */
     boolean deleteUser(String nick) throws NoSuchElementException;
+
+    /**
+     * Gets User by nick.
+     *
+     * @param nick
+     * @return User by nick
+     * @throws NoSuchElementException the no such element exception
+     */
+    User getByNick(String nick) throws NoSuchElementException;
+
+    /**
+     * Contains by nick.
+     *
+     * @param nick the nick
+     * @return the boolean
+     */
+    boolean contains(String nick);
 }

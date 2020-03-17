@@ -36,7 +36,7 @@ public interface ChatClient {
      * @param name of removed chat
      * @return has chat deleted
      */
-    boolean removeChat(String name) throws NoSuchElementException;
+    boolean deleteChat(String name) throws NoSuchElementException;
 
     /**
      * Add new message to the chat
@@ -47,4 +47,20 @@ public interface ChatClient {
      */
     Message addMessage(String chatName, User author, String text)
             throws NoSuchElementException, IllegalArgumentException;
+
+    /**
+     * Gets chat by name.
+     *
+     * @param name
+     * @return chat by name
+     */
+    Chat getChatByName(String name) throws NoSuchElementException;
+
+    /**
+     * Contains by chat name.
+     *
+     * @param name the name
+     * @return the boolean
+     */
+    boolean contains(String name);
 }

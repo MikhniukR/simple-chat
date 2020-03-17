@@ -27,8 +27,7 @@ public class UserClientInMemory implements UserClient {
 
     @Override
     public User createUser(String nick) throws IllegalArgumentException {
-        if (users.stream().anyMatch(
-                user -> user.getNick().equals(nick))) {
+        if (contains(nick)) {
             throw new IllegalArgumentException("User with nick " + nick + " already exist, nick should be uniq.");
         }
 
@@ -40,12 +39,29 @@ public class UserClientInMemory implements UserClient {
 
     @Override
     public boolean deleteUser(String nick) throws NoSuchElementException {
-        if (users.stream().noneMatch(
-                user -> user.getNick().equals(nick))) {
+        if (!contains(nick)) {
             throw new NoSuchElementException("No user with nick " + nick);
         }
+
         return users.removeIf(
                 user -> user.getNick().equals(nick)
         );
+    }
+
+    @Override
+    public User getByNick(String nick) throws NoSuchElementException {
+        if (!contains(nick)) {
+            throw new NoSuchElementException("No user with nick " + nick);
+        }
+
+        return new User(users.stream().filter(
+                user -> user.getNick().equals(nick))
+                .findFirst().get());
+    }
+
+    @Override
+    public boolean contains(String nick) {
+        return users.stream().anyMatch(
+                user -> user.getNick().equals(nick));
     }
 }
