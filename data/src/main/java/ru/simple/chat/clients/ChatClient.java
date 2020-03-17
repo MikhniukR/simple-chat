@@ -1,7 +1,8 @@
-package ru.mikhniuk.clients;
+package ru.simple.chat.clients;
 
-import ru.mikhniuk.models.Chat;
-import ru.mikhniuk.models.User;
+import ru.simple.chat.models.Message;
+import ru.simple.chat.models.User;
+import ru.simple.chat.models.Chat;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,6 +45,6 @@ public interface ChatClient {
      * @param author   of new message
      * @param text     of new message
      */
-    void addMessage(String chatName, User author, String text)
+    Message addMessage(String chatName, User author, String text)
             throws NoSuchElementException, IllegalArgumentException;
 }

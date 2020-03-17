@@ -1,8 +1,8 @@
-package ru.mikhniuk.clients;
+package ru.simple.chat.clients;
 
-import ru.mikhniuk.models.Chat;
-import ru.mikhniuk.models.Message;
-import ru.mikhniuk.models.User;
+import ru.simple.chat.models.Message;
+import ru.simple.chat.models.User;
+import ru.simple.chat.models.Chat;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class ChatClientInMemory implements ChatClient {
     }
 
     @Override
-    public void addMessage(String chatName, User author, String text)
+    public Message addMessage(String chatName, User author, String text)
             throws NoSuchElementException, IllegalArgumentException {
         if (chats.stream().noneMatch(
                 chat -> chat.getName().equals(chatName))) {
@@ -75,5 +75,6 @@ public class ChatClientInMemory implements ChatClient {
         ).forEach(
                 chat -> chat.addMessage(new Message(author, text))
         );
+        return message;
     }
 }

@@ -1,6 +1,6 @@
-package ru.mikhniuk.clients;
+package ru.simple.chat.clients;
 
-import ru.mikhniuk.models.User;
+import ru.simple.chat.models.User;
 
 import java.util.Collections;
 import java.util.LinkedList;

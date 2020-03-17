@@ -1,4 +1,3 @@
 rootProject.name = 'simple-chat'
-include 'data'
-include 'server'
+include 'data', 'server'
 

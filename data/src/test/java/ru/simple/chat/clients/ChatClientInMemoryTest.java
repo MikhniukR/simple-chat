@@ -1,14 +1,12 @@
-package ru.mikhniuk.clients;
+package ru.simple.chat.clients;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.mikhniuk.models.Chat;
-import ru.mikhniuk.models.Message;
-import ru.mikhniuk.models.User;
+import ru.simple.chat.models.Message;
+import ru.simple.chat.models.User;
+import ru.simple.chat.models.Chat;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class ChatClientInMemoryTest {
 
