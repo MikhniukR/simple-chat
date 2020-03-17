@@ -40,8 +40,9 @@ public class UserController {
      */
     @GetMapping("/user")
     public ResponseEntity<List<User>> getAllUsers() {
-            return new ResponseEntity<>(userClient.getAllUsers(), HttpStatus.OK);
+        return new ResponseEntity<>(userClient.getAllUsers(), HttpStatus.OK);
     }
+
     /**
      * Create user user.
      *
@@ -52,8 +53,7 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestParam(value = "nick") String nick) {
         try {
             return new ResponseEntity<>(userClient.createUser(nick), HttpStatus.OK);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -65,12 +65,11 @@ public class UserController {
      * @return the boolean
      */
     @DeleteMapping("/user/{nick}")
-    public ResponseEntity deleteUser(@PathVariable("nick")String nick) {
+    public ResponseEntity deleteUser(@PathVariable("nick") String nick) {
         try {
             userClient.deleteUser(nick);
             return new ResponseEntity(HttpStatus.OK);
-        }
-        catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.simple.chat.clients.ChatClient;
+import ru.simple.chat.clients.UserClient;
 import ru.simple.chat.models.Chat;
 import ru.simple.chat.models.Message;
 import ru.simple.chat.models.User;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * The base Chat controller.
@@ -24,15 +26,18 @@ import java.util.NoSuchElementException;
 public class ChatController {
 
     private ChatClient chatClient;
+    private UserClient userClient;
 
     /**
      * Instantiates a new Chat controller.
      *
-     * @param client the client
+     * @param chatClient the chat client
+     * @param userClient the user client
      */
     @Autowired
-    ChatController(ChatClient client) {
-        this.chatClient = client;
+    ChatController(ChatClient chatClient, UserClient userClient) {
+        this.chatClient = chatClient;
+        this.userClient = userClient;
     }
 
     /**
@@ -55,12 +60,17 @@ public class ChatController {
      */
     @PostMapping("/chat")
     public ResponseEntity<Chat> createChat(@RequestParam(value = "admin") User admin,
-                           @RequestParam(value = "name") String name,
-                           @RequestParam(value = "participants") List<User> participants) {
+                                           @RequestParam(value = "name") String name,
+                                           @RequestParam(value = "participants") List<User> participants) {
+        List<User> users = userClient.getAllUsers();
+        Optional<User> badUser = participants.stream().filter(user -> !users.contains(user)).findFirst();
+        if (badUser.isPresent()) {
+            return new ResponseEntity("User with nick " + badUser.get().getNick() + " not exists",
+                    HttpStatus.BAD_REQUEST);
+        }
         try {
             return new ResponseEntity(chatClient.createChat(admin, name, participants), HttpStatus.OK);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -73,13 +83,12 @@ public class ChatController {
      * @return the boolean
      */
     @DeleteMapping("/chat/{name}")
-    public ResponseEntity deleteChat(@PathVariable("name")String name,
-                              @RequestParam(value = "user")  User author) {
+    public ResponseEntity deleteChat(@PathVariable("name") String name,
+                                     @RequestParam(value = "user") User author) {
         try {
             chatClient.removeChat(name);
             return new ResponseEntity(HttpStatus.OK);
-        }
-        catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -93,16 +102,18 @@ public class ChatController {
      * @return the message
      */
     @PostMapping("/chat/{chatName}")
-    public ResponseEntity<Message> addMessage(@PathVariable("chatName")String chatName,
-                              @RequestParam(value = "author") User author,
-                              @RequestParam(value = "text") String text) {
+    public ResponseEntity<Message> addMessage(@PathVariable("chatName") String chatName,
+                                              @RequestParam(value = "author") User author,
+                                              @RequestParam(value = "text") String text) {
+        if (!userClient.getAllUsers().contains(author)) {
+            return new ResponseEntity("User with nick " + author.getNick() + " not exists",
+                    HttpStatus.BAD_REQUEST);
+        }
         try {
             return new ResponseEntity<>(chatClient.addMessage(chatName, author, text), HttpStatus.OK);
-        }
-        catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
