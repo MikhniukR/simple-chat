@@ -13,7 +13,6 @@ import ru.simple.chat.clients.UserClient;
 import ru.simple.chat.models.User;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * The base User controller.
@@ -21,7 +20,7 @@ import java.util.NoSuchElementException;
 @RestController
 public class UserController {
 
-    private UserClient userClient;
+    private final UserClient userClient;
 
     /**
      * Instantiates a new User controller.
@@ -50,9 +49,9 @@ public class UserController {
      * @return the user
      */
     @PostMapping("/user")
-    public ResponseEntity<User> createUser(@RequestParam(value = "nick") String nick) {
+    public ResponseEntity<?> createUser(@RequestParam(value = "nick") String nick) {
         if (userClient.contains(nick)) {
-            return new ResponseEntity("User with nick " + nick + " already exists",
+            return new ResponseEntity<>("User with nick " + nick + " already exists",
                     HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(userClient.createUser(nick), HttpStatus.OK);
@@ -65,14 +64,14 @@ public class UserController {
      * @return the boolean
      */
     @DeleteMapping("/user/{nick}")
-    public ResponseEntity deleteUser(@PathVariable("nick") String nick) {
+    public ResponseEntity<?> deleteUser(@PathVariable("nick") String nick) {
         if (!userClient.contains(nick)) {
-            return new ResponseEntity("User with nick " + nick + " not exists",
+            return new ResponseEntity<>("User with nick " + nick + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
 
         userClient.deleteUser(nick);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -82,9 +81,9 @@ public class UserController {
      * @return the user by nick
      */
     @GetMapping("/user/{nick}")
-    public ResponseEntity<User> getUserByNick(@PathVariable("nick") String nick) {
+    public ResponseEntity<?> getUserByNick(@PathVariable("nick") String nick) {
         if (!userClient.contains(nick)) {
-            return new ResponseEntity("User with nick " + nick + " not exists",
+            return new ResponseEntity<>("User with nick " + nick + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
 

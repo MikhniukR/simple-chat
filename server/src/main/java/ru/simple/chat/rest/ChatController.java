@@ -12,11 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.simple.chat.clients.ChatClient;
 import ru.simple.chat.clients.UserClient;
 import ru.simple.chat.models.Chat;
-import ru.simple.chat.models.Message;
 import ru.simple.chat.models.User;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -25,8 +23,8 @@ import java.util.Optional;
 @RestController
 public class ChatController {
 
-    private ChatClient chatClient;
-    private UserClient userClient;
+    private final ChatClient chatClient;
+    private final UserClient userClient;
 
     /**
      * Instantiates a new Chat controller.
@@ -47,7 +45,7 @@ public class ChatController {
      */
     @GetMapping("/chat")
     public ResponseEntity<List<Chat>> getAllChats() {
-        return new ResponseEntity(chatClient.getAllChats(), HttpStatus.OK);
+        return new ResponseEntity<>(chatClient.getAllChats(), HttpStatus.OK);
     }
 
     /**
@@ -59,25 +57,25 @@ public class ChatController {
      * @return the chat
      */
     @PostMapping("/chat")
-    public ResponseEntity<Chat> createChat(@RequestParam(value = "admin") User admin,
-                                           @RequestParam(value = "name") String chatName,
-                                           @RequestParam(value = "participants") List<User> participants) {
+    public ResponseEntity<?> createChat(@RequestParam(value = "admin") User admin,
+                                        @RequestParam(value = "name") String chatName,
+                                        @RequestParam(value = "participants") List<User> participants) {
 
         //TODO think about the faster variant this or userClient.contains() for every participant
 
         List<User> users = userClient.getAllUsers();
         Optional<User> badUser = participants.stream().filter(user -> !users.contains(user)).findFirst();
         if (badUser.isPresent()) {
-            return new ResponseEntity("User with nick " + badUser.get().getNick() + " not exists",
+            return new ResponseEntity<>("User with nick " + badUser.get().getNick() + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
 
         if (chatClient.contains(chatName)) {
-            return new ResponseEntity("Chat with name " + chatName + " already exists",
+            return new ResponseEntity<>("Chat with name " + chatName + " already exists",
                     HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(chatClient.createChat(admin, chatName, participants), HttpStatus.OK);
+        return new ResponseEntity<>(chatClient.createChat(admin, chatName, participants), HttpStatus.OK);
     }
 
     /**
@@ -88,12 +86,14 @@ public class ChatController {
      * @return the boolean
      */
     @DeleteMapping("/chat/{name}")
-    public ResponseEntity deleteChat(@PathVariable("name") String chatName,
-                                     @RequestParam(value = "user") User author) {
-        if (!chatClient.contains(chatName))
+    public ResponseEntity<?> deleteChat(@PathVariable("name") String chatName,
+                                        @RequestParam(value = "user") User author) {
+        if (!chatClient.contains(chatName)) {
+            return new ResponseEntity<>("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+        }
 
-            chatClient.deleteChat(chatName);
-        return new ResponseEntity(HttpStatus.OK);
+        chatClient.deleteChat(chatName);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -105,47 +105,47 @@ public class ChatController {
      * @return the message
      */
     @PostMapping("/chat/{chatName}")
-    public ResponseEntity<Message> addMessage(@PathVariable("chatName") String chatName,
-                                              @RequestParam(value = "author") User author,
-                                              @RequestParam(value = "text") String text) {
+    public ResponseEntity<?> addMessage(@PathVariable("chatName") String chatName,
+                                        @RequestParam(value = "author") User author,
+                                        @RequestParam(value = "text") String text) {
         if (!userClient.contains(author.getNick())) {
-            return new ResponseEntity("User with nick " + author.getNick() + " not exists",
+            return new ResponseEntity<>("User with nick " + author.getNick() + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
 
         if (!chatClient.contains(chatName)) {
-            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
         }
 
         try {
             return new ResponseEntity<>(chatClient.addMessage(chatName, author, text), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     /**
      * Gets chat by name
      *
-     * @param chatName
+     * @param chatName name of chat
      * @return the chat
      */
     @GetMapping("/chat/{chatName}")
-    public ResponseEntity<Chat> getChat(@PathVariable("chatName") String chatName,
-                                        @RequestParam(value = "author") User author) {
+    public ResponseEntity<?> getChat(@PathVariable("chatName") String chatName,
+                                     @RequestParam(value = "author") User author) {
         if (!chatClient.contains(chatName)) {
-            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
         }
 
         if (!userClient.contains(author.getNick())) {
-            return new ResponseEntity("User with nick " + author.getNick() + " not exists",
+            return new ResponseEntity<>("User with nick " + author.getNick() + " not exists",
                     HttpStatus.BAD_REQUEST);
         }
 
         Chat chat = chatClient.getChatByName(chatName);
 
         if (!chat.getParticipants().contains(author)) {
-            return new ResponseEntity("You are not participant of chat " + chatName, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("You are not participant of chat " + chatName, HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(chat, HttpStatus.OK);
@@ -159,23 +159,16 @@ public class ChatController {
      * @return the messages
      */
     @GetMapping("/chat/{chatName}/messages")
-    public ResponseEntity<Message> getMessages(@PathVariable("chatName") String chatName,
-                                               @RequestParam(value = "author") User author) {
-        if (!chatClient.contains(chatName)) {
-            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> getMessages(@PathVariable("chatName") String chatName,
+                                         @RequestParam(value = "author") User author) {
+        ResponseEntity<?> response = getChat(chatName, author);
+        if (!response.getStatusCode().equals(HttpStatus.OK)) {
+            return response;
         }
-
-        if (!userClient.contains(author.getNick())) {
-            return new ResponseEntity("User with nick " + author.getNick() + " not exists",
-                    HttpStatus.BAD_REQUEST);
+        Chat chat = (Chat) response.getBody();
+        if (chat != null) {
+            return new ResponseEntity<>(chat.getMessages(), HttpStatus.OK);
         }
-
-        Chat chat = chatClient.getChatByName(chatName);
-
-        if (!chat.getParticipants().contains(author)) {
-            return new ResponseEntity("You are not participant of chat " + chatName, HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity(chat.getMessages(), HttpStatus.OK);
+        return response;
     }
 }
