@@ -7,6 +7,9 @@ import ru.simple.chat.clients.ChatClientInMemory;
 import ru.simple.chat.clients.UserClient;
 import ru.simple.chat.clients.UserClientInMemory;
 
+/**
+ * The App config.
+ */
 @Configuration
 public class AppConfig {
 
