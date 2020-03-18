@@ -63,17 +63,15 @@ public class ChatController {
                                            @RequestParam(value = "name") String chatName,
                                            @RequestParam(value = "participants") List<User> participants) {
 
+        if (chatClient.contains(chatName)) {
+            return new ResponseEntity("Chat with name " + chatName + " already exists",
+                    HttpStatus.BAD_REQUEST);
+        }
         //TODO think about the faster variant this or userClient.contains() for every participant
-
         List<User> users = userClient.getAllUsers();
         Optional<User> badUser = participants.stream().filter(user -> !users.contains(user)).findFirst();
         if (badUser.isPresent()) {
             return new ResponseEntity("User with nick " + badUser.get().getNick() + " not exists",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        if (chatClient.contains(chatName)) {
-            return new ResponseEntity("Chat with name " + chatName + " already exists",
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -90,9 +88,15 @@ public class ChatController {
     @DeleteMapping("/chat/{name}")
     public ResponseEntity deleteChat(@PathVariable("name") String chatName,
                                      @RequestParam(value = "user") User author) {
-        if (!chatClient.contains(chatName))
+        if (!chatClient.contains(chatName)) {
+            return new ResponseEntity("No chat with name " + chatName, HttpStatus.BAD_REQUEST);
+        }
 
-            chatClient.deleteChat(chatName);
+        if (!chatClient.getChatByName(chatName).getAdmin().equals(author)) {
+            return new ResponseEntity("Only admin can delete chat", HttpStatus.BAD_REQUEST);
+        }
+
+        chatClient.deleteChat(chatName);
         return new ResponseEntity(HttpStatus.OK);
     }
 
