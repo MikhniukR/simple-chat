@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
  * The type User client in memory.
  */
 public class UserClientInMemory implements UserClient {
-    private List<User> users;
+    private final List<User> users;
 
     /**
      * Instantiates a new User client in memory.
@@ -38,12 +38,12 @@ public class UserClientInMemory implements UserClient {
     }
 
     @Override
-    public boolean deleteUser(String nick) throws NoSuchElementException {
+    public void deleteUser(String nick) throws NoSuchElementException {
         if (!contains(nick)) {
             throw new NoSuchElementException("No user with nick " + nick);
         }
 
-        return users.removeIf(
+        users.removeIf(
                 user -> user.getNick().equals(nick)
         );
     }

@@ -29,15 +29,14 @@ public interface UserClient {
      * Delete user by nick.
      *
      * @param nick of deleted user
-     * @return has been user deleted
      * @throws NoSuchElementException the no such element exception
      */
-    boolean deleteUser(String nick) throws NoSuchElementException;
+    void deleteUser(String nick) throws NoSuchElementException;
 
     /**
      * Gets User by nick.
      *
-     * @param nick
+     * @param nick of User
      * @return User by nick
      * @throws NoSuchElementException the no such element exception
      */

@@ -34,9 +34,9 @@ public interface ChatClient {
      * Remove chat by name
      *
      * @param name of removed chat
-     * @return has chat deleted
+     * @throws NoSuchElementException the no such element exception
      */
-    boolean deleteChat(String name) throws NoSuchElementException;
+    void deleteChat(String name) throws NoSuchElementException;
 
     /**
      * Add new message to the chat
@@ -51,7 +51,7 @@ public interface ChatClient {
     /**
      * Gets chat by name.
      *
-     * @param name
+     * @param name of chat
      * @return chat by name
      */
     Chat getChatByName(String name) throws NoSuchElementException;
