@@ -87,7 +87,6 @@ class UserControllerTest {
     void deleteExistUser() throws Exception {
         User user = new User("nick");
         when(userClient.contains(user.getNick())).thenReturn(true);
-        when(userClient.deleteUser(user.getNick())).thenReturn(true);
 
         mockMvc.perform(
                 delete("/user/" + user.getNick())

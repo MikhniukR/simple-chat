@@ -40,9 +40,9 @@ class ChatControllerTest {
     @InjectMocks
     private ChatController chatController;
 
-    private User admin = new User("admin");
-    private User user = new User("user");
-    private Chat chat = new Chat(admin, "chat", List.of(admin, user));
+    private final User admin = new User("admin");
+    private final User user = new User("user");
+    private final Chat chat = new Chat(admin, "chat", List.of(admin, user));
 
     @BeforeEach
     public void init() {
@@ -81,8 +81,8 @@ class ChatControllerTest {
     @Test
     void createChat() throws Exception {
         when(chatClient.contains(chat.getName())).thenReturn(false);
-        when(chatClient.createChat(chat.getAdmin(), chat.getName(), chat.getParticipants())).thenReturn(chat);
         when(userClient.getAllUsers()).thenReturn(List.of(admin, user));
+        when(chatClient.createChat(chat.getAdmin(), chat.getName(), chat.getParticipants())).thenReturn(chat);
 
         mockMvc.perform(
                 post("/chat")
@@ -94,8 +94,8 @@ class ChatControllerTest {
                 .andExpect(jsonPath("name").value(chat.getName()))
                 .andExpect(jsonPath("participants", Matchers.hasSize(2)));
 
-        verify(userClient).getAllUsers();
         verify(chatClient).contains(chat.getName());
+        verify(userClient).getAllUsers();
         verify(chatClient).createChat(chat.getAdmin(), chat.getName(), chat.getParticipants());
         verifyNoMoreInteractions(chatClient);
         verifyNoMoreInteractions(userClient);
@@ -120,7 +120,6 @@ class ChatControllerTest {
     @Test
     void createChatWithBadParticipants() throws Exception {
         when(chatClient.contains(chat.getName())).thenReturn(false);
-        when(chatClient.createChat(chat.getAdmin(), chat.getName(), chat.getParticipants())).thenReturn(chat);
         when(userClient.getAllUsers()).thenReturn(List.of(admin, user));
 
         mockMvc.perform(
@@ -132,7 +131,6 @@ class ChatControllerTest {
 
         verify(userClient).getAllUsers();
         verify(chatClient).contains(chat.getName());
-        verify(chatClient).createChat(chat.getAdmin(), chat.getName(), chat.getParticipants());
         verifyNoMoreInteractions(chatClient);
         verifyNoMoreInteractions(userClient);
     }
@@ -141,7 +139,6 @@ class ChatControllerTest {
     void deleteChat() throws Exception {
         when(chatClient.contains(chat.getName())).thenReturn(true);
         when(chatClient.getChatByName(chat.getName())).thenReturn(chat);
-        when(chatClient.deleteChat(chat.getName())).thenReturn(true);
 
         mockMvc.perform(
                 delete("/chat/" + chat.getName())
@@ -312,8 +309,7 @@ class ChatControllerTest {
     @Test
     void getChatInvalidUser() throws Exception {
         when(chatClient.contains(chat.getName())).thenReturn(true);
-        when(userClient.contains(user.getNick())).thenReturn(true);
-        when(chatClient.getChatByName(chat.getName())).thenReturn(chat);
+        when(userClient.contains("otherUser")).thenReturn(false);
 
         mockMvc.perform(
                 get("/chat/" + chat.getName())
@@ -321,8 +317,7 @@ class ChatControllerTest {
         ).andExpect(status().isBadRequest());
 
         verify(chatClient).contains(chat.getName());
-        verify(userClient).contains(user.getNick());
-        verify(chatClient).getChatByName(chat.getName());
+        verify(userClient).contains("otherUser");
         verifyNoMoreInteractions(userClient);
         verifyNoMoreInteractions(chatClient);
     }
